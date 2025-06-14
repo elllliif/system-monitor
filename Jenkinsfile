@@ -59,8 +59,8 @@ pipeline {
                         """
                     }
                     sh '''
-                        docker rm -f email-monitor || true
-                        docker run -d --name email-monitor elllliif/system-monitor:latest
+                        docker rm -f email_monitor || true
+                        docker run -d --name email_monitor elllliif/system-monitor:latest
                     '''
                 }
             }
