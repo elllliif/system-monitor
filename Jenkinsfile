@@ -4,13 +4,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/kullanici/your-python-project.git'
+                git 'https://github.com/elllliif/system-monitor.git'
             }
         }
 
-        stage('Run Python Script') {
+        stage('Build Docker Image') {
             steps {
-                sh 'python3 send_email.py'
+                sh 'docker build -t system-monitor .'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                sh 'docker run --rm system-monitor'
             }
         }
     }
