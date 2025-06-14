@@ -49,22 +49,24 @@ pipeline {
             }
         }
 
-        stage('Build, Push and Run') {
+                stage('Build, Push and Run') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub_credential') {
                         sh """
-                            docker build -t elllliif/system_monitor:latest .
-                            docker push elllliif/system_monitor:latest
+                            docker build -t elllliif/system-monitor:latest .
+                            docker push elllliif/system-monitor:latest
                         """
                     }
                     sh '''
-                        docker rm -f system_monitor-container || true
-                        docker run -d --name system_monitor-container elllliif/system-monitor:latest
+                        docker rm -f email-monitor || true
+                        docker run -d --name email-monitor elllliif/system-monitor:latest
                     '''
                 }
             }
         }
+
+
 
     }
 }
