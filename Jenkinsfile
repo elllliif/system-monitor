@@ -1,26 +1,17 @@
 pipeline {
     agent any
-
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/elllliif/system-monitor.git'
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: '*/main']], 
+                          userRemoteConfigs: [[url: 'https://github.com/elllliif/system-monitor.git', credentialsId: 'project_etabakli']]])
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Build and Run') {
             steps {
                 sh 'docker build -t system-monitor .'
-            }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                sh '''
-                   docker stop system-monitor || true
-                   docker rm system-monitor || true
-                   docker run -d --name system-monitor system-monitor
-                '''
+                sh 'docker run -d --name system-monitor-container system-monitor'
             }
         }
     }
