@@ -1,8 +1,14 @@
 pipeline {
     agent any
 
+    triggers {
+        githubPush()
+    }
+    
     environment {
-        GIT_CREDENTIALS_ID = 'project_etabakli' // Jenkins Credential ID
+        GIT_CREDENTIALS_ID = 'project_etabakli'
+        DOCKERHUB_CREDENTIAL_ID = 'dockerhub_credential'
+        DOCKERHUB_USERNAME = 'elllliif'
     }
 
     stages {
@@ -20,29 +26,45 @@ pipeline {
 
         stage('Update code') {
             steps {
-                // Örneğin bir dosya düzenleniyor, script çalıştırılıyor vs.
                 sh 'echo "Yeni satır" >> README.md'
             }
         }
 
         stage('Commit and Push') {
             steps {
-                // Git config ayarları (opsiyonel, ama genelde gerekli)
-                sh '''
-                    git config user.email "elif772017@icloud.com"
-                    git config user.name "Elif"
-                    git add .
-                    git commit -m "Automated update from Jenkins"
-                    git push origin main
-                '''
+                script {
+                    def changes = sh(script: 'git status --porcelain', returnStdout: true).trim()
+                    if (changes) {
+                        sh '''
+                            git config user.email "elif772017@icloud.com"
+                            git config user.name "Elif"
+                            git add .
+                            git commit -m "Automated update from Jenkins"
+                            git push origin main
+                        '''
+                    } else {
+                        echo "No changes to commit."
+                    }
+                }
             }
         }
 
-        stage('Build and Run') {
+        stage('Build, Push and Run') {
             steps {
-                sh 'docker build -t system-monitor .'
-                sh 'docker run -d --name system-monitor-container system-monitor'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub_credential') {
+                        sh """
+                            docker build -t elllliif/system-monitor:latest .
+                            docker push elllliif/system-monitor:latest
+                        """
+                    }
+                    sh '''
+                        docker rm -f system-monitor-container || true
+                        docker run -d --name system-monitor-container elllliif/system-monitor:latest
+                    '''
+                }
             }
         }
+
     }
 }
