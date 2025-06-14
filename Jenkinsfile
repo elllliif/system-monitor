@@ -1,9 +1,10 @@
 pipeline {
     agent any
 
-    triggers {
-        githubPush()
-    }
+    // Eğer webhook ile tetikliyorsan, triggers kısmını kaldırabilirsin.
+    // triggers {
+    //     pollSCM('H/5 * * * *')  // Alternatif: her 5 dakikada bir kontrol eder.
+    // }
     
     environment {
         GIT_CREDENTIALS_ID = 'project_etabakli'
@@ -49,24 +50,25 @@ pipeline {
             }
         }
 
-                stage('Build, Push and Run') {
+        stage('Build, Push and Run') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub_credential') {
+                    // Docker Hub'a login ve push işlemi
+                    docker.withRegistry('https://index.docker.io/v1/', "${env.DOCKERHUB_CREDENTIAL_ID}") {
                         sh """
-                            docker build -t elllliif/system-monitor:latest .
-                            docker push elllliif/system-monitor:latest
+                            docker build -t ${env.DOCKERHUB_USERNAME}/system-monitor:latest .
+                            docker push ${env.DOCKERHUB_USERNAME}/system-monitor:latest
                         """
                     }
+                    // Eğer önceki container varsa kaldır, yeni container çalıştır
                     sh '''
-                        docker rm -f email_monitor || true
-                        docker run -d --name email_monitor elllliif/system-monitor:latest
+                        if [ $(docker ps -aq -f name=email_monitor) ]; then
+                            docker rm -f email_monitor
+                        fi
+                        docker run -d --name email_monitor ${DOCKERHUB_USERNAME}/system-monitor:latest
                     '''
                 }
             }
         }
-
-
-
     }
 }
