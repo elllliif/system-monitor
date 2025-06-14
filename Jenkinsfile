@@ -16,7 +16,11 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                sh 'docker run --rm system-monitor'
+                sh '''
+                   docker stop system-monitor || true
+                   docker rm system-monitor || true
+                   docker run -d --name system-monitor system-monitor
+                '''
             }
         }
     }
