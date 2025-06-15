@@ -9,4 +9,4 @@ RUN pip install --no-cache-dir psutil schedule
 COPY sistem_raporu.py .
 
 # Scripti çalıştır
-CMD ["python", "sistem_raporu.py"]
+CMD ["python", "send_email.py"]
