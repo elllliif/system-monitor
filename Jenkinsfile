@@ -6,7 +6,7 @@ pipeline {
         GIT_REPO = 'https://github.com/elllliif/system-monitor.git'
         GIT_BRANCH = 'main'                                // İstersen başka branch belirtebilirsin
         IMAGE_NAME = 'elllliif/system-monitor'             // Docker Hub repo ismi
-        IMAGE_TAG = ''
+        IMAGE_TAG = 'latest'
     }
 
     stages {
