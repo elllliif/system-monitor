@@ -15,7 +15,6 @@ pipeline {
                 git url: "${GIT_REPO}", branch: "${GIT_BRANCH}"
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 script {
