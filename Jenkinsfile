@@ -15,6 +15,7 @@ pipeline {
                 git url: "${GIT_REPO}", branch: "${GIT_BRANCH}"
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -27,16 +28,17 @@ pipeline {
 
 
        stage('DockerHub Login And Push Docker Image') {
-        steps {
-            script {
-                docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credential') {
-                    def dockerImage = docker.image("${IMAGE_NAME}:${IMAGE_TAG}")
-                    echo "Pushing Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
-                    dockerImage.push()
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS}") {
+                        def dockerImage = docker.image("${IMAGE_NAME}:${IMAGE_TAG}")
+                        echo "Pushing Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
+                        dockerImage.push()
+                    }
                 }
             }
         }
-        }
+
 
 
 
