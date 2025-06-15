@@ -1,10 +1,12 @@
-FROM jenkins/jenkins:lts
+FROM python:3.10-slim
 
-# Docker CLI yükle (Debian tabanlı Jenkins imajı için)
-USER root
+WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y docker.io && \
-    rm -rf /var/lib/apt/lists/*
+# Gerekli python kütüphanelerini doğrudan kur
+RUN pip install --no-cache-dir psutil schedule
 
-USER jenkins
+# Python scriptini kopyala
+COPY sistem_raporu.py .
+
+# Scripti çalıştır
+CMD ["python", "sistem_raporu.py"]
