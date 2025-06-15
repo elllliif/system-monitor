@@ -16,6 +16,8 @@ pipeline {
             }
         }
 
+        
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -25,12 +27,11 @@ pipeline {
                 sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} ."
             }
         }
-
-
-       stage('DockerHub Login And Push Docker Image') {
+        
+        stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS}") {
+                    docker.withRegistry('', "${DOCKERHUB_CREDENTIALS}") {
                         def dockerImage = docker.image("${IMAGE_NAME}:${IMAGE_TAG}")
                         echo "Pushing Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
                         dockerImage.push()
@@ -38,6 +39,7 @@ pipeline {
                 }
             }
         }
+
 
 
 
