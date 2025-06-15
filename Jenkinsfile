@@ -35,8 +35,6 @@ pipeline {
             }
         }
 
-
-
         stage('Push Docker Image') {
             steps {
                 echo "Pushing Docker image: ${IMAGE_NAME}:${env.IMAGE_TAG}"
