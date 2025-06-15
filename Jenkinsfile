@@ -19,18 +19,25 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    IMAGE_TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    env.IMAGE_TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                 }
-                echo "Building Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                echo "Building Docker image: ${IMAGE_NAME}:${env.IMAGE_TAG}"
+                sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} ."
             }
         }
-        stage('Docker Login & Push') {
+
+       stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh "docker push ${IMAGE_NAME}:${env.IMAGE_TAG}"
                 }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                echo "Pushing Docker image: ${IMAGE_NAME}:${env.IMAGE_TAG}"
+                sh "docker push ${IMAGE_NAME}:${env.IMAGE_TAG}"
             }
         }
 
