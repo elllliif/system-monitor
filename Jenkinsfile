@@ -34,8 +34,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
-                    docker rm -f email_monitor || true
-                    docker run -d --name email_monitor ${DOCKERHUB_USERNAME}/system-monitor:latest
+                    docker rm -f jenkins-blueocean || true
+                    docker run -d --name jenkins-blueocean ${DOCKERHUB_USERNAME}/system-monitor:latest
                 '''
             }
         }
