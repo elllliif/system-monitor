@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-credential'   // Jenkins Credentials olarak Docker Hub kullanıcı adı + token buraya eklenmeli
+        DOCKERHUB_CREDENTIALS = 'dockerhub_credential'   // Jenkins Credentials olarak Docker Hub kullanıcı adı + token buraya eklenmeli
         GIT_REPO = 'https://github.com/elllliif/system-monitor.git'
         GIT_BRANCH = 'main'                                // İstersen başka branch belirtebilirsin
         IMAGE_NAME = 'elllliif/system-monitor'             // Docker Hub repo ismi
