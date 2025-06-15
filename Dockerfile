@@ -1,13 +1,8 @@
-FROM python:3.10-slim
+FROM jenkins/jenkins:lts
 
-# Çalışma dizini oluştur
-WORKDIR /app
+USER root
 
-# Gerekli paketleri yükle
-RUN pip install psutil
+# Docker CLI yükle
+RUN apt-get update && apt-get install -y docker.io
 
-# Script dosyasını kopyala
-COPY send_email.py .
-
-# Container çalıştırıldığında scripti başlat
-CMD ["python", "send_email.py"]
+USER jenkins
