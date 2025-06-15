@@ -6,7 +6,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir psutil schedule
 
 # Python scriptini kopyala
-COPY sistem_raporu.py .
+COPY send_email.py .
 
 # Scripti çalıştır
 CMD ["python", "send_email.py"]
