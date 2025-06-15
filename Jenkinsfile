@@ -2,21 +2,36 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIAL_ID = 'dockerhub_credential' // Jenkins'de tanımlı DockerHub credential ID'si
-        DOCKERHUB_USERNAME = 'elllliif'
+        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'   // Jenkins Credentials olarak Docker Hub kullanıcı adı + token buraya eklenmeli
+        GIT_REPO = 'https://github.com/elllliif/system-monitor.git'
+        GIT_BRANCH = 'main'                                // İstersen başka branch belirtebilirsin
+        IMAGE_NAME = 'elllliif/system-monitor'             // Docker Hub repo ismi
+        IMAGE_TAG = ''
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git url: "${GIT_REPO}", branch: "${GIT_BRANCH}"
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${env.DOCKERHUB_USERNAME}/system-monitor:latest")
+                    IMAGE_TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                }
+                echo "Building Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Login DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS}") {
+                        echo 'Logged in to Docker Hub'
+                    }
                 }
             }
         }
@@ -24,19 +39,10 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIAL_ID) {
-                        docker.image("${env.DOCKERHUB_USERNAME}/system-monitor:latest").push()
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS}") {
+                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
-            }
-        }
-
-        stage('Deploy Container') {
-            steps {
-                sh '''
-                    docker rm -f jenkins-blueocean || true
-                    docker run -d --name jenkins-blueocean ${DOCKERHUB_USERNAME}/system-monitor:latest
-                '''
             }
         }
     }
