@@ -26,21 +26,20 @@ pipeline {
             }
         }
 
+      
     
-       stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credential', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+       stage('DockerHub Login And Push Docker Image') {
+        steps {
+            script {
+                docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credential') {
+                    def dockerImage = docker.image("${IMAGE_NAME}:${IMAGE_TAG}")
+                    echo "Pushing Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
+                    dockerImage.push()
                 }
             }
         }
-
-        stage('Push Docker Image') {
-            steps {
-                echo "Pushing Docker image: ${IMAGE_NAME}:${env.IMAGE_TAG}"
-                sh "docker push ${IMAGE_NAME}:${env.IMAGE_TAG}"
-            }
         }
+
 
 
         
